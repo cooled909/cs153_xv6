@@ -298,6 +298,7 @@ wait(int* status)
         p->killed = 0;
         p->state = UNUSED;
         release(&ptable.lock);
+        status = &curproc->exit_status;
         return pid;
       }
     }
