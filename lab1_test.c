@@ -71,10 +71,10 @@ int waitPid(void){
         pid_a[i] = fork();
         if (pid_a[i] == 0) { // only the child executed this code
             printf(1, "\n The is child with PID# %d and I will exit with status %d\n", getpid(), getpid() + 4);
+            sleep(5);
             exit(getpid() + 4);
         }
     }
-
     sleep(5);
     printf(1, "\n This is the parent: Now waiting for child with PID# %d\n",pid_a[3]);
     ret_pid = waitpid(pid_a[3], &exit_status, 0);

@@ -300,10 +300,9 @@ wait(int* status)
         p->name[0] = 0;
         p->killed = 0;
         p->state = UNUSED;
-	if(status){
-	   *status = p->exitstatus;
+	    if(status){
+	        *status = p->exit_status;
         }
-        p->exitstatus = 0;
         release(&ptable.lock);
         return pid;
       }
@@ -333,12 +332,9 @@ waitpid(int pid, int* status, int options)
         // Scan through table looking for exited children.
         havekids = 0;
         for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-            if(p->parent != curproc)
+            if(p->pid != pid)
                 continue;
             havekids = 1;
-            if(p->pid == pid){
-                wait(status);
-            }
             if(p->state == ZOMBIE){
                 // Found one.
                 pid = p->pid;
@@ -351,6 +347,10 @@ waitpid(int pid, int* status, int options)
                 p->killed = 0;
                 p->state = UNUSED;
                 release(&ptable.lock);
+                if(status)
+                {
+                    *status = p->exit_status;
+                }
                 return pid;
             }
         }
