@@ -113,3 +113,18 @@ sys_add(void)
   int b = 2020;
   return a+b;
 }
+
+// priority handling
+int sys_setPriority(void) {
+  int priority;
+  if (argint(0,&priority)<0) {
+     return -1;
+     }
+     return setPriority(priority);
+}
+
+int sys_getPriority(void) {
+  return getPriority();
+}
+
+

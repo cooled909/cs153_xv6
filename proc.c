@@ -249,6 +249,9 @@ exit(int status)
   end_op();
   curproc->cwd = 0;
 
+  end_time = ticks;
+  cprintf("\n turnaround time is %d\n", end_time - curproc->start_time);
+
   acquire(&ptable.lock);
 
   // Parent might be sleeping in wait().
@@ -377,16 +380,32 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
+  int low_priority;  
 
   for(;;){
     // Enable interrupts on this processor.
     sti();
 
     // Loop over process table looking for process to run.
+    low_priority = 1000;
     acquire(&ptable.lock);
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+        if (p->state == RUNNABLE && p->priority < low_priority) {
+	   low_priority = p->priority;
+	}
+    }
+
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
+      
+      if(p->priority != low_priority) {
+	if (p->priority > 0) {
+	   p->priority--;
+        }
+        continue;
+    }
+
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -394,7 +413,8 @@ scheduler(void)
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
-
+      p->priority++;     
+ 
       swtch(&(c->scheduler), p->context);
       switchkvm();
 
@@ -583,4 +603,15 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+int setPriority(int priority) {
+   struct proc *p = myproc();
+   p->priority = priority;
+   return 0;
+}
+
+int getPriority() {
+   struct proc *curproc = myproc();
+   return curproc->priority;
 }

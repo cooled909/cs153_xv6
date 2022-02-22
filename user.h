@@ -25,6 +25,9 @@ int sleep(int);
 int uptime(void);
 int add(void);
 int waitpid(int pid, int* status, int options);
+// our lab 2 syscall for priority
+int setPriority(int);
+int getPriority(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

@@ -22,3 +22,6 @@
 #define SYS_close  21
 #define SYS_add    22
 #define SYS_waitpid 23
+#define SYS_setPriority 24
+#define SYS_getPriority 25
+
