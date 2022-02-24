@@ -88,6 +88,8 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->start_time = ticks;
+  p->wait_time = 0;
 
   release(&ptable.lock);
 
@@ -188,7 +190,6 @@ fork(void)
   if((np = allocproc()) == 0){
     return -1;
   }
-  np->start_time = ticks;
   // Copy process state from proc.
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
     kfree(np->kstack);
@@ -251,6 +252,7 @@ exit(int status)
 
   int end_time = ticks;
   cprintf("\n turnaround time is %d\n", end_time - curproc->start_time);
+    cprintf("\n wait time is %d\n", curproc->wait_time);
 
   acquire(&ptable.lock);
 
@@ -400,6 +402,9 @@ scheduler(void)
         continue;
       
       if(p->priority != low_priority) {
+          if(p->state == RUNNABLE){
+              p->wait_time++;
+          }
 	if (p->priority > 0) {
 	   p->priority--;
         }
