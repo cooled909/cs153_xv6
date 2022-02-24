@@ -188,7 +188,7 @@ fork(void)
   if((np = allocproc()) == 0){
     return -1;
   }
-
+  np->start_time = ticks;
   // Copy process state from proc.
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
     kfree(np->kstack);
@@ -249,7 +249,7 @@ exit(int status)
   end_op();
   curproc->cwd = 0;
 
-  end_time = ticks;
+  int end_time = ticks;
   cprintf("\n turnaround time is %d\n", end_time - curproc->start_time);
 
   acquire(&ptable.lock);
@@ -413,7 +413,7 @@ scheduler(void)
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
-      p->priority++;     
+      p->priority++;
  
       swtch(&(c->scheduler), p->context);
       switchkvm();
